@@ -83,10 +83,10 @@ Example Functions:
 
 ### Step 1: Input Data
 - The program takes a CSV file as input. Each row in the file represents a transaction with the following fields:
-  - `Ticker`: Stock symbol (e.g., `NVDA`, `AAPL`).
-  - `Last Price`: The price of the transaction.
-  - `Volume`: The number of shares.
-  - `Action`: `BUY` or `SELL`.
+  1. `Ticker`: Stock symbol (e.g., `NVDA`, `AAPL`).
+  2. `Last Price`: The price of the transaction.
+  3. `Volume`: The number of shares.
+  4. `Action`: `BUY` or `SELL`.
 
 ### Step 2: Multithreading
 - The program spawns four threads:
