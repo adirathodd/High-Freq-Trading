@@ -48,10 +48,12 @@ This project is designed to preprocess and analyze high-frequency trading data. 
 
 1. Place the raw CSV file (e.g., `transactions.csv`) in the project folder.
 2. Compile the code:
+
    ```bash
    gcc dataframe.c main.c -o main
    ```
 3. Run the code:
+
     ```bash
     ./main transactions.csv
     ```
