@@ -51,6 +51,7 @@ This project is designed to preprocess and analyze high-frequency trading data. 
    ```bash
    gcc dataframe.c main.c -o main
    ```
-3. ```bash
+3. Run the code:
+    ```bash
     ./main transactions.csv
     ```
