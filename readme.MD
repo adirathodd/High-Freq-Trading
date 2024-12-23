@@ -114,5 +114,5 @@ Example Functions:
 2. Run the code:
 
     ```bash
-    ./main transactions.csv
+    ./main orders.csv
     ```
