@@ -109,7 +109,7 @@ Example Functions:
 1. Compile the code:
 
    ```bash
-   gcc dataframe.c main.c -o main
+   gcc dataframe.c main.c -o main -pthread
    ```
 2. Run the code:
 
