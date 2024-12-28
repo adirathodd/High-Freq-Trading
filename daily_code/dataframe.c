@@ -9,7 +9,6 @@
 // Function to allocate memory for the Dataframe
 Dataframe *createDataframe(int rows, int cols) {
     Dataframe *df = malloc(sizeof(Dataframe));
-    df->columns = malloc(cols * sizeof(char *));
     for (int i = 0; i < cols; i++) {
         df->columns[i] = malloc(MAX_FIELD_SIZE * sizeof(char));
     }
@@ -32,8 +31,35 @@ void freeDataframe(Dataframe *df) {
         free(df->rows[i]);
     }
 
-    free(df->columns);
     free(df);
+}
+
+
+int count_rows(const char *filepath) {
+    FILE *file = fopen(filepath, "r");
+    if (!file) {
+        perror("Could not open file");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t line_count = 0;
+    char buffer[8192];
+
+    while (1) {
+        size_t bytes_read = fread(buffer, 1, sizeof(buffer), file);
+        if (bytes_read == 0) {
+            break;
+        }
+
+        for (size_t i = 0; i < bytes_read; i++) {
+            if (buffer[i] == '\n') {
+                line_count++;
+            }
+        }
+    }
+
+    fclose(file);
+    return (int)line_count;
 }
 
 // Function to get a row based on row number
@@ -59,14 +85,19 @@ void trimWhitespace(char *line) {
     }
 }
 
-Dataframe *readCSV(const char *filename, int rows, int cols) {
+Dataframe *readCSV(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         perror("Unable to open file");
         return NULL;
     }
+    printf("Filename - %s\n", filename);
+    int rows = count_rows(filename) - 1;
+    char *ticker = strtok((char *)filename, "/");
+    ticker = strtok(NULL, "/");
+    ticker = strtok(NULL, ".");
 
-    Dataframe *df = createDataframe(rows, cols + 2);
+    Dataframe *df = createDataframe(rows, 10);
 
     char line[1024];
     int rowCount = 0;
@@ -76,9 +107,19 @@ Dataframe *readCSV(const char *filename, int rows, int cols) {
         trimWhitespace(line);
         int columnCount = 0;
         char *token = strtok(line, ",");
-    
+        
         if (rowCount == 0) {
-            
+            if (token) {
+                strncpy(df->columns[columnCount], token, MAX_FIELD_SIZE - 1);
+                df->columns[columnCount][MAX_FIELD_SIZE - 1] = '\0';
+                columnCount++;
+                token = strtok(NULL, ",");
+            }
+
+            strncpy(df->columns[columnCount], "Ticker", MAX_FIELD_SIZE - 1);
+            df->columns[columnCount][MAX_FIELD_SIZE - 1] = '\0';
+            columnCount++;
+
             while (token) {
                 strncpy(df->columns[columnCount], token, MAX_FIELD_SIZE - 1);
                 df->columns[columnCount++][MAX_FIELD_SIZE - 1] = '\0';
@@ -94,6 +135,7 @@ Dataframe *readCSV(const char *filename, int rows, int cols) {
             df->numCols = columnCount;
         } else {
             Row *row = df->rows[rowCount - 1];
+            strncpy(row->ticker, ticker, sizeof(row->ticker) - 1);
             if (token) {
                 strncpy(row->date, token, sizeof(row->date) - 1);
                 row->date[sizeof(row->date) - 1] = '\0';
@@ -141,27 +183,41 @@ Dataframe *readCSV(const char *filename, int rows, int cols) {
             } else {
                 row->movAvg30 = 0;
             }
-
             movingTotal30 += row->close;
-
         }
-
         rowCount++;
     }
     
-    // Remove NaN values in MVA7 and MVA30
-    Row **temp = df->rows;
-    for(int i = 0; i < 30; i++) free(temp[i]);
-    df->rows = &(df->rows[30]);
-    free(temp);
-    df->numRows = rowCount - 31;
-
     fclose(file);
+
+    int dataRows = rowCount - 1;
+    df->numRows = dataRows;
+
+    if (dataRows <= 30) {
+        return df;
+    }
+
+    for (int i = 0; i < 30; i++) {
+        free(df->rows[i]);
+        df->rows[i] = NULL;
+    }
+
+    for (int i = 0; i < dataRows - 30; i++) {
+        df->rows[i] = df->rows[i + 30];
+    }
+
+    for (int i = dataRows - 30; i < dataRows; i++) {
+        df->rows[i] = NULL;
+    }
+
+    df->numRows = dataRows - 30;
+
     return df;
 }
 
 void printline(Row *row) {
     printf("%-15s", row->date);
+    printf("%-15s", row->ticker);
     printf("%-15.4f", row->open);
     printf("%-15.4f", row->high);
     printf("%-15.4f", row->low);

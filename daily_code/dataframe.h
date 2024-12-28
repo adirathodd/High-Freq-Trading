@@ -6,6 +6,7 @@
 
 typedef struct Row {
     char date[20];
+    char ticker[10];
     float open;
     float high;
     float low;
@@ -18,13 +19,13 @@ typedef struct Row {
 
 
 typedef struct {
-    char **columns;
+    char *columns[10];
     Row **rows;
     int numCols;
     int numRows;
 } Dataframe;
 
-Dataframe* readCSV(const char* filename, int rows, int cols);
+Dataframe* readCSV(const char* filename);
 void freeDataframe(Dataframe *df);
 void printDataframe(Dataframe *df);
 void printHead(Dataframe *df);
