@@ -1,5 +1,6 @@
 #ifndef DATAFRAME_H
 #define DATAFRAME_H
+#define MAX_FIELD_SIZE 256
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,7 @@ typedef struct {
 } Dataframe;
 
 Dataframe* readCSV(const char* filename);
+Dataframe *createDataframe(int rows, int cols);
 void freeDataframe(Dataframe *df);
 void printDataframe(Dataframe *df);
 void printHead(Dataframe *df);

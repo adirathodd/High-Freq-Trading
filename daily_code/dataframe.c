@@ -4,8 +4,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_FIELD_SIZE 256
-
 // Function to allocate memory for the Dataframe
 Dataframe *createDataframe(int rows, int cols) {
     Dataframe *df = malloc(sizeof(Dataframe));
@@ -91,7 +89,7 @@ Dataframe *readCSV(const char *filename) {
         perror("Unable to open file");
         return NULL;
     }
-    printf("Filename - %s\n", filename);
+
     int rows = count_rows(filename) - 1;
     char *ticker = strtok((char *)filename, "/");
     ticker = strtok(NULL, "/");
